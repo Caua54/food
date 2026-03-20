@@ -8,36 +8,18 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('promocoes', function (Blueprint $table) {
+        Schema::create('produtos', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
             $table->text('descricao')->nullable();
-            $table->boolean('ativo')->default(true);
-            $table->decimal('desconto', 8, 2)->nullable();
-            $table->timestamps();
-        });
-
-        // tabela pivot produtos <-> promocoes
-        Schema::create('produto_promocao', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('promocao_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('produto_id')->constrained()->cascadeOnDelete();
-            $table->timestamps();
-        });
-
-        // tabela pivot combos <-> promocoes
-        Schema::create('combo_promocao', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('promocao_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('combo_id')->constrained()->cascadeOnDelete();
+            $table->decimal('preco', 8, 2);
+            $table->foreignId('categoria_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('combo_promocao');
-        Schema::dropIfExists('produto_promocao');
-        Schema::dropIfExists('promocoes');
+        Schema::dropIfExists('produtos');
     }
 };
