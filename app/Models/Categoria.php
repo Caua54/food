@@ -6,11 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Categoria extends Model
 {
-    protected $fillable = [
-        'nome',
-        'descricao',
-        'ativo',
-    ];
+    protected $guarded = [];
 
     public function produtos()
     {
