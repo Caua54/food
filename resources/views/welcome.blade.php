@@ -227,7 +227,7 @@
 
         function updateCartContent() {
             const container = document.getElementById('cart-items');
-            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const total = cart.reduce((sum, item) => sum + (parseFloat(item.price || 0) * item.quantity), 0);
             
             if (cart.length === 0) {
                 container.innerHTML = `
@@ -238,23 +238,28 @@
                         <button onclick="toggleCart()" class="px-8 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-all">Continuar Comprando</button>
                     </div>
                 `;
-                document.getElementById('cart-total-section').classList.add('hidden');
+                const totalSection = document.getElementById('cart-total-section');
+                if (totalSection) totalSection.classList.add('hidden');
                 return;
             }
             
-            document.getElementById('cart-total-section').classList.remove('hidden');
-            document.getElementById('cart-total').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            const totalSection = document.getElementById('cart-total-section');
+            if (totalSection) totalSection.classList.remove('hidden');
+            const cartTotalEl = document.getElementById('cart-total');
+            if (cartTotalEl) cartTotalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
             
             container.innerHTML = cart.map(item => {
-                const subtotal = (item.price * item.quantity).toFixed(2);
+                const subtotal = (parseFloat(item.price || 0) * item.quantity).toFixed(2);
                 return `
                     <div class="flex items-center p-6 border-b border-gray-200 hover:bg-gray-50 rounded-xl mb-4">
-                        <img src="${item.image ? '/storage/' + item.image : item.image}" alt="${item.name}" class="w-20 h-20 rounded-xl object-cover mr-4 shadow-lg">
+"${item.image ? item.image : '/images/no-image.png'}"
+
+Note: Filament FileUpload 'image()' generates full URL or relative path. Using raw item.image value directly.
                         <div class="flex-1">
                             <h4 class="font-bold text-lg mb-2">${item.name}</h4>
-                            <p class="text-sm text-gray-600 mb-4">${item.description}</p>
+                            <p class="text-sm text-gray-600 mb-4">${item.description || ''}</p>
                             <div class="flex items-center gap-4">
-                                <span class="font-bold text-orange-600 text-lg">R$ ${item.price.toFixed(2)}</span>
+                                <span class="font-bold text-orange-600 text-lg">R$ ${(parseFloat(item.price || 0)).toFixed(2)}</span>
                                 <div class="flex items-center bg-gray-100 rounded-xl p-2">
                                     <button onclick="changeQuantity(${item.id}, -1)" class="w-10 h-10 rounded-lg bg-white hover:bg-gray-200 flex items-center justify-center transition-all">-</button>
                                     <span class="w-12 text-center font-bold text-xl mx-4">${item.quantity}</span>
@@ -270,7 +275,8 @@
                 `;
             }).join('');
 
-            document.getElementById('whatsapp-btn').onclick = sendWhatsAppOrder;
+            const whatsappBtn = document.getElementById('whatsapp-btn');
+            if (whatsappBtn) whatsappBtn.onclick = sendWhatsAppOrder;
         }
 
         function changeQuantity(id, delta) {
