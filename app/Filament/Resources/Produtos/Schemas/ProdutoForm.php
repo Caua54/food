@@ -34,6 +34,7 @@ class ProdutoForm
             FileUpload::make('imagem')
                 ->label('Imagem')
                 ->image()
+                ->disk('public')
                 ->directory('produtos'),
 
             Toggle::make('ativo')
