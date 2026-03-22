@@ -40,6 +40,11 @@ class ProdutoForm
             Toggle::make('ativo')
                 ->label('Ativo')
                 ->default(true),
+
+                 Toggle::make('promocional')
+                ->label('Promocional')
+                ->default(false),
+
         ]);
     }
 }
