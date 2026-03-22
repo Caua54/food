@@ -52,7 +52,7 @@
                     Escolha seus pratos favoritos e peça direto no WhatsApp. Rápido e fácil!
                 </p>
                 <button onclick="toggleCart()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-12 py-6 rounded-3xl font-bold text-xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 mx-auto flex items-center gap-3">
-                    <i class="fab fa-whatsapp"></i> Ver Carrinho (0 itens)
+                    <i class="fab fa-whatsapp"></i> Ver Carrinho
                 </button>
             </div>
         </div>
@@ -157,24 +157,26 @@
                     <div class="col-span-full text-center py-20">
                         <i class="fas fa-exclamation-triangle text-6xl text-orange-500 mb-6"></i>
                         <p class="text-2xl text-gray-500 mb-4">Erro ao carregar cardápio</p>
-                        <p class="text-lg text-gray-400">Verifique se há produtos no painel admin</p>
                     </div>
                 `;
             }
         }
 
         // Functions hoisted
-        window.toggleCart = function() {
-            const modal = document.getElementById('cart-modal');
-            modal.classList.toggle('hidden');
-            
-            if (!modal.classList.contains('hidden')) {
-                document.body.style.overflow = 'hidden';
-                updateCartContent();
-            } else {
-                document.body.style.overflow = 'auto';
-            }
-        }
+       window.toggleCart = function() {
+    const modal = document.getElementById('cart-modal');
+    modal.classList.toggle('hidden');
+    
+    if (!modal.classList.contains('hidden')) {
+        document.body.style.overflow = 'hidden';
+        updateCartContent();
+    } else {
+        document.body.style.overflow = 'auto';
+
+        // 🔥 ATUALIZA AO FECHAR
+        renderProducts();
+    }
+}
 
         window.closeCart = function() {
             document.getElementById('cart-modal').classList.add('hidden');
@@ -182,32 +184,28 @@
         }
 
         function addToCart(productId) {
-            const product = allProducts.find(p => p.id === productId);
-            let cartItem = cart.find(item => item.id === productId);
-            
-            if (cartItem) {
-                cartItem.quantity++;
-            } else {
-                cart.push({ 
-                    id: product.id,
-                    name: product.nome, 
-                    description: product.descricao,
-                    price: product.preco,
-                    image: product.imagem,
-                    quantity: 1 
-                });
-            }
-            
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartUI();
-            renderProducts();
-            showToast('Item adicionado ao carrinho!');
-        }
+    const product = allProducts.find(p => p.id === productId);
 
-        function updateCartUI() {
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            document.getElementById('cart-count').textContent = totalItems;
-        }
+    let cartItem = cart.find(item => item.id === productId);
+
+    if (cartItem) {
+        cartItem.quantity++;
+    } else {
+        cart.push({
+            id: product.id,
+            name: product.nome, // 🔥 CORRIGIDO
+            description: product.descricao,
+            price: parseFloat(product.preco) || 0,
+            image: product.imagem,
+            quantity: 1
+        });
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartUI();
+    renderProducts();
+    showToast('Item adicionado ao carrinho!');
+}
 
         function showToast(message) {
             const toast = document.createElement('div');
@@ -225,59 +223,91 @@
             }, 3000);
         }
 
-        function updateCartContent() {
-            const container = document.getElementById('cart-items');
-            const total = cart.reduce((sum, item) => sum + (parseFloat(item.price || 0) * item.quantity), 0);
-            
-            if (cart.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-20">
-                        <i class="fas fa-shopping-cart text-6xl text-gray-400 mb-6"></i>
-                        <h3 class="text-2xl font-bold text-gray-700 mb-4">Carrinho Vazio</h3>
-                        <p class="text-lg text-gray-600 mb-8">Adicione itens do menu acima</p>
-                        <button onclick="toggleCart()" class="px-8 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-all">Continuar Comprando</button>
-                    </div>
-                `;
-                const totalSection = document.getElementById('cart-total-section');
-                if (totalSection) totalSection.classList.add('hidden');
-                return;
-            }
-            
-            const totalSection = document.getElementById('cart-total-section');
-            if (totalSection) totalSection.classList.remove('hidden');
-            const cartTotalEl = document.getElementById('cart-total');
-            if (cartTotalEl) cartTotalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
-            
-            container.innerHTML = cart.map(item => {
-                const subtotal = (parseFloat(item.price || 0) * item.quantity).toFixed(2);
-                return `
-                    <div class="flex items-center p-6 border-b border-gray-200 hover:bg-gray-50 rounded-xl mb-4">
-"${item.image ? item.image : '/images/no-image.png'}"
+      function updateCartContent() {
+    const container = document.getElementById('cart-items');
 
-Note: Filament FileUpload 'image()' generates full URL or relative path. Using raw item.image value directly.
-                        <div class="flex-1">
-                            <h4 class="font-bold text-lg mb-2">${item.name}</h4>
-                            <p class="text-sm text-gray-600 mb-4">${item.description || ''}</p>
-                            <div class="flex items-center gap-4">
-                                <span class="font-bold text-orange-600 text-lg">R$ ${(parseFloat(item.price || 0)).toFixed(2)}</span>
-                                <div class="flex items-center bg-gray-100 rounded-xl p-2">
-                                    <button onclick="changeQuantity(${item.id}, -1)" class="w-10 h-10 rounded-lg bg-white hover:bg-gray-200 flex items-center justify-center transition-all">-</button>
-                                    <span class="w-12 text-center font-bold text-xl mx-4">${item.quantity}</span>
-                                    <button onclick="changeQuantity(${item.id}, 1)" class="w-10 h-10 rounded-lg bg-white hover:bg-gray-200 flex items-center justify-center transition-all">+</button>
-                                </div>
-                                <span class="font-bold text-xl text-green-600 ml-4">R$ ${subtotal.replace('.', ',')}</span>
-                            </div>
-                        </div>
-                        <button onclick="removeItem(${item.id})" class="ml-4 p-3 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                `;
-            }).join('');
+    const total = cart.reduce((sum, item) => 
+        sum + (parseFloat(item.price || 0) * item.quantity), 0
+    );
 
-            const whatsappBtn = document.getElementById('whatsapp-btn');
-            if (whatsappBtn) whatsappBtn.onclick = sendWhatsAppOrder;
-        }
+    // 🛒 Carrinho vazio
+    if (cart.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-20">
+                <i class="fas fa-shopping-cart text-6xl text-gray-400 mb-6"></i>
+                <h3 class="text-2xl font-bold text-gray-700 mb-4">Carrinho Vazio</h3>
+                <p class="text-lg text-gray-600 mb-8">Adicione itens do menu acima</p>
+                <button onclick="toggleCart()" 
+                    class="px-8 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-all">
+                    Continuar Comprando
+                </button>
+            </div>
+        `;
+        document.getElementById('cart-total-section')?.classList.add('hidden');
+        return;
+    }
+
+    // 💰 Total
+    document.getElementById('cart-total-section')?.classList.remove('hidden');
+    document.getElementById('cart-total').textContent =
+        `R$ ${total.toFixed(2).replace('.', ',')}`;
+
+    // 🧾 Itens
+    container.innerHTML = cart.map(item => {
+        const subtotal = (item.price * item.quantity).toFixed(2);
+
+        const imagem = item.image
+            ? (item.image.startsWith('http')
+                ? item.image
+                : '/storage/' + item.image)
+            : '/images/no-image.png';
+
+        return `
+            <div class="flex items-center gap-4 p-4 mb-4 rounded-xl 
+                        bg-white/5 hover:bg-white/10 transition border border-gray-700">
+
+                <!-- IMAGEM -->
+                <img src="${imagem}" 
+                     class="w-20 h-20 object-cover rounded-lg" />
+
+                <!-- INFO -->
+                <div class="flex-1">
+                    <h4 class="font-bold text-lg">${item.name}</h4>
+                    <p class="text-sm text-gray-400">${item.description || ''}</p>
+
+                    <span class="text-orange-500 font-bold">
+                        R$ ${item.price.toFixed(2).replace('.', ',')}
+                    </span>
+                </div>
+
+                <!-- QUANTIDADE -->
+                <div class="flex items-center gap-2">
+                    <button onclick="changeQuantity(${item.id}, -1)" 
+                        class="w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded-lg">-</button>
+
+                    <span class="font-bold">${item.quantity}</span>
+
+                    <button onclick="changeQuantity(${item.id}, 1)" 
+                        class="w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded-lg">+</button>
+                </div>
+
+                <!-- SUBTOTAL -->
+                <div class="text-green-500 font-bold w-24 text-right">
+                    R$ ${subtotal.replace('.', ',')}
+                </div>
+
+                <!-- REMOVER -->
+                <button onclick="removeItem(${item.id})" 
+                    class="text-red-500 hover:text-red-600 ml-2">
+                    <i class="fas fa-trash"></i>
+                </button>
+
+            </div>
+        `;
+    }).join('');
+
+    document.getElementById('whatsapp-btn').onclick = sendWhatsAppOrder;
+}
 
         function changeQuantity(id, delta) {
             const item = cart.find(item => item.id === id);
@@ -330,71 +360,159 @@ Note: Filament FileUpload 'image()' generates full URL or relative path. Using r
             updateCartUI();
         }
 
-        function renderCategories() {
-            const container = document.getElementById('categorias');
-            container.innerHTML = categories.map(cat => `
-                <button onclick="filterProducts('${cat.id}')" data-cat="${cat.id}" 
-                        class="flex items-center gap-3 px-8 py-4 bg-white hover:bg-orange-50 border border-gray-200 hover:border-orange-300 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 whitespace-nowrap mx-2 text-left ${currentCategory === cat.id ? 'bg-orange-100 border-orange-400 shadow-orange-200 ring-2 ring-orange-200' : ''}">
-                    <i class="${cat.icon} text-orange-500 text-xl"></i>
-                    <span>${cat.name}</span>
-                </button>
-            `).join('');
-        }
+       function renderCategories() {
+    const container = document.getElementById('categorias');
 
-        function filterProducts(catId) {
-            currentCategory = catId;
-                filteredProducts = parseInt(catId) === 0 ? [...allProducts] : allProducts.filter(p => parseInt(p.categoria_id) === parseInt(catId));
-            renderCategories();
-            renderProducts();
-            document.getElementById('produtos-count').textContent = filteredProducts.length + ' produtos';
-        }
+    container.innerHTML = categories.map(cat => `
+        <button 
+            onclick="filterProducts('${cat.id}')" 
+            data-cat="${cat.id}" 
 
-        function renderProducts() {
-            const container = document.getElementById('produtos');
-            if (filteredProducts.length === 0) {
-                container.innerHTML = '<div class="col-span-full text-center py-20"><i class="fas fa-search text-6xl text-gray-400 mb-6"></i><p class="text-2xl text-gray-500">Nenhum produto encontrado</p></div>';
-                return;
-            }
-            
-            container.innerHTML = filteredProducts.map(product => {
+            class="flex items-center gap-3 px-6 py-3 rounded-xl text-sm font-semibold 
+                   transition-all duration-300 whitespace-nowrap mx-2 snap-center
+
+                   ${currentCategory == cat.id 
+                        ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg scale-105' 
+                        : 'bg-white/80 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-orange-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'}"
+        >
+
+            <i class="${cat.icon} text-lg 
+                ${currentCategory == cat.id ? 'text-white' : 'text-orange-500'}">
+            </i>
+
+            <span>${cat.name}</span>
+
+        </button>
+    `).join('');
+}
+
+       function filterProducts(catId) {
+    currentCategory = parseInt(catId);
+
+    // animação de saída
+    const container = document.getElementById('produtos');
+    container.classList.add('opacity-50', 'scale-[0.98]');
+
+    setTimeout(() => {
+        filteredProducts = currentCategory === 0
+            ? [...allProducts]
+            : allProducts.filter(p => parseInt(p.categoria_id) === currentCategory);
+
+        renderCategories();
+        renderProducts();
+
+        document.getElementById('produtos-count').textContent =
+            `${filteredProducts.length} produto${filteredProducts.length !== 1 ? 's' : ''}`;
+
+        // animação de entrada
+        container.classList.remove('opacity-50', 'scale-[0.98]');
+    }, 150);
+}
+
+      function renderProducts() {
+    const container = document.getElementById('produtos');
+
+    if (filteredProducts.length === 0) {
+        container.innerHTML = `
+            <div class="col-span-full text-center py-20">
+                <i class="fas fa-box-open text-6xl text-gray-400 mb-6"></i>
+                <p class="text-2xl font-semibold text-gray-500">Nenhum produto encontrado</p>
+                <p class="text-gray-400">Tente outra categoria</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = filteredProducts.map(product => {
         const cartItem = cart.find(item => item.id === product.id);
-                return `
-                    <div class="bg-white hover:bg-gray-50 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 hover:border-orange-300 p-6 text-left">
-                        <img src="${product.imagem ? '/storage/' + product.imagem : product.imagem}" alt="${product.nome}" class="w-full h-48 object-cover rounded-xl mb-4 shadow-lg">
-                        <h3 class="font-bold text-xl mb-2">${product.nome}</h3>
-                        <p class="text-gray-600 mb-6 line-clamp-2">${product.descricao}</p>
-                        <div class="flex items-center justify-between mb-6">
-                            <span class="text-2xl font-bold text-orange-600">R$ ${(parseFloat(product.preco) || 0).toFixed(2).replace('.', ',')}</span>
-                            ${product.precoOriginal && parseFloat(product.preco) < parseFloat(product.precoOriginal) ? `
-                                <span class="text-lg text-gray-400 line-through">R$ ${(parseFloat(product.precoOriginal) || 0).toFixed(2).replace('.', ',')}</span>
+
+        const preco = parseFloat(product.preco) || 0;
+        const precoFormatado = preco.toFixed(2).replace('.', ',');
+
+        const imagem = product.imagem
+            ? (product.imagem.startsWith('http')
+                ? product.imagem
+                : '/storage/' + product.imagem)
+            : '/images/no-image.png';
+
+        return `
+            <div class="relative bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl 
+                        rounded-2xl shadow-md hover:shadow-2xl 
+                        transition-all duration-300 overflow-hidden 
+                        border border-gray-200/50 dark:border-gray-700/50 
+                        hover:border-orange-400 group hover:-translate-y-1">
+
+                <!-- Badge Promo -->
+                ${product.precoOriginal && product.preco < product.precoOriginal ? `
+                    <div class="absolute top-3 left-3 bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow z-10">
+                        Promo
+                    </div>
+                ` : ''}
+
+                <!-- Imagem -->
+                <div class="overflow-hidden">
+                    <img 
+                        src="${imagem}" 
+                        alt="${product.nome}"
+                        class="w-full h-44 object-cover group-hover:scale-110 transition duration-500"
+                        loading="lazy"
+                    >
+                </div>
+
+                <!-- Conteúdo -->
+                <div class="p-5 flex flex-col h-full">
+
+                    <h3 class="font-bold text-lg mb-1 group-hover:text-orange-500 transition">
+                        ${product.nome}
+                    </h3>
+
+                    <p class="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2">
+                        ${product.descricao || ''}
+                    </p>
+
+                    <div class="mt-auto">
+
+                        <!-- Preço -->
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <span class="text-xl font-bold text-orange-500">
+                                    R$ ${precoFormatado}
+                                </span>
+
+                                ${product.precoOriginal && product.preco < product.precoOriginal ? `
+                                    <span class="text-sm text-gray-400 line-through ml-2">
+                                        R$ ${parseFloat(product.precoOriginal).toFixed(2).replace('.', ',')}
+                                    </span>
+                                ` : ''}
+                            </div>
+
+                            ${cartItem ? `
+                                <span class="bg-green-500/20 text-green-400 px-2 py-1 rounded-lg text-xs font-bold backdrop-blur">
+                                    ${cartItem.quantity}x
+                                </span>
                             ` : ''}
-                            ${cartItem ? `<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold">${cartItem.quantity}x</span>` : ''}
                         </div>
-    <button data-product-id="${product.id}" class="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-3 px-6 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 ${cartItem ? 'bg-green-500 hover:bg-green-600 from-green-500 to-green-600' : ''}">
-                            <i class="fas fa-${cartItem ? 'check' : 'plus'}"></i>
+
+                        <!-- Botão -->
+                        <button 
+                            data-product-id="${product.id}" 
+                            class="w-full py-3 rounded-xl font-semibold text-white 
+                                   transition-all duration-300 shadow-md hover:shadow-lg active:scale-95
+
+                                   ${cartItem 
+                                        ? 'bg-green-500 hover:bg-green-600' 
+                                        : 'bg-gradient-to-r from-orange-500 to-red-500 hover:opacity-90'}">
+
+                            <i class="fas ${cartItem ? 'fa-check' : 'fa-plus'} mr-2"></i>
                             ${cartItem ? `No Carrinho (${cartItem.quantity})` : 'Adicionar'}
                         </button>
+
                     </div>
-                `;
-            }).join('');
-        }
-
-        function addToCart(productId) {
-            const product = allProducts.find(p => p.id === productId);
-            let cartItem = cart.find(item => item.id === productId);
-            
-            if (cartItem) {
-                cartItem.quantity++;
-            } else {
-                cart.push({ ...product, quantity: 1 });
-            }
-            
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartUI();
-            renderProducts();
-            showToast('Item adicionado ao carrinho!');
-        }
-
+                </div>
+            </div>
+        `;
+    }).join('');
+}
         function updateCartUI() {
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             document.getElementById('cart-count').textContent = totalItems || 0;
@@ -425,31 +543,41 @@ Note: Filament FileUpload 'image()' generates full URL or relative path. Using r
 
         // Remove duplicate - already defined above
 
+function changeQuantity(id, delta) {
+    const item = cart.find(item => item.id === id);
 
-        function changeQuantity(id, delta) {
-            const item = cart.find(item => item.id === id);
-            if (item) {
-                item.quantity = Math.max(1, item.quantity + delta);
-                if (item.quantity === 0) {
-                    cart = cart.filter(i => i.id !== id);
-                }
-                localStorage.setItem('cart', JSON.stringify(cart));
-                updateCartUI();
-                updateCartContent();
-            }
+    if (item) {
+        item.quantity += delta;
+
+        if (item.quantity <= 0) {
+            cart = cart.filter(i => i.id !== id);
         }
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+
+        updateCartUI();
+        updateCartContent();
+        renderProducts(); // 🔥 ESSA LINHA FALTAVA
+    }
+}
 
         function removeItem(id) {
-            cart = cart.filter(item => item.id !== id);
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartUI();
-            updateCartContent();
-        }
+    cart = cart.filter(item => item.id !== id);
 
-        function closeCart() {
-            document.getElementById('cart-modal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
+    localStorage.setItem('cart', JSON.stringify(cart));
+
+    updateCartUI();
+    updateCartContent();
+    renderProducts(); // 🔥 ESSA LINHA FALTAVA
+}
+
+       function closeCart() {
+    document.getElementById('cart-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+
+    // 🔥 ATUALIZA A TELA
+    renderProducts();
+}
 
         function sendWhatsAppOrder() {
             if (cart.length === 0) return;
