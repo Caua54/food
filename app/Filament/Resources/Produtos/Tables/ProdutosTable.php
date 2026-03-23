@@ -13,7 +13,10 @@ class ProdutosTable
         return $table
             ->columns([
                 ImageColumn::make('imagem')
-                    ->label('Imagem'),
+                    ->label('Imagem')
+                    ->getStateUsing(fn ($record) => url('storage/' . $record->imagem))
+                    ->size(50)
+                    ->square(),
 
                 TextColumn::make('nome')
                     ->searchable(),
