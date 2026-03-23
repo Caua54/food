@@ -31,14 +31,22 @@ class ProdutoForm
                 ->searchable()
                 ->required(),
 
-            FileUpload::make('imagem')
-                ->label('Imagem')
-                ->image()
-                ->directory('produtos'),
+         FileUpload::make('imagem')
+            ->label('Imagem')
+            ->image()
+            ->disk('public')
+            ->directory('produtos')
+            ->visibility('public')
+            ->imagePreviewHeight('150'),
 
             Toggle::make('ativo')
                 ->label('Ativo')
                 ->default(true),
+
+                Toggle::make('promocional')
+                ->label('Promocional')
+                ->default(false),
+
         ]);
     }
 }

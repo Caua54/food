@@ -16,4 +16,10 @@ class EditProduto extends EditRecord
             DeleteAction::make(),
         ];
     }
+    protected function mutateFormDataBeforeFill(array $data): array
+{
+    $data['imagem'] = null; // 👈 limpa a imagem ao editar
+
+    return $data;
+}
 }
