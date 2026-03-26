@@ -33,7 +33,9 @@ class WelcomeController extends Controller
                 $precoFinal = $prod->preco;
                 // Promoções safe (catch error se table não existir)
                 try {
-                    $promocoes = $prod->promocoes()->where('ativo', true)->get();
+               $produtos = Produto::with(['promocoes' => function ($query) {
+    $query->where('ativo', true);
+}])->get();
                     if ($promocoes->isNotEmpty()) {
                         $desconto = $promocoes->min('desconto') ?? 0;
                         $precoFinal = max(0, $prod->preco - $desconto);
@@ -63,4 +65,3 @@ class WelcomeController extends Controller
         return $colors[$id % count($colors)];
     }
 }
-
