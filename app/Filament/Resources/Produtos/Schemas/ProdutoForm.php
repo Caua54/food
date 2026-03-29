@@ -6,7 +6,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Toggle;
 
 class ProdutoForm
 {
@@ -38,14 +37,6 @@ class ProdutoForm
             ->directory('produtos')
             ->visibility('public')
             ->imagePreviewHeight('150'),
-
-            Toggle::make('ativo')
-                ->label('Ativo')
-                ->default(true),
-
-                Toggle::make('promocional')
-                ->label('Promocional')
-                ->default(false),
 
         ]);
     }

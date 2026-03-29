@@ -6,6 +6,7 @@ use Filament\Schemas\Schema;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\FileUpload;
 
 class ComboForm
 {
@@ -17,12 +18,21 @@ class ComboForm
                 ->required(),
 
             Textarea::make('descricao')
-                ->label('Descrição'),
+                ->label('Descricao'),
 
             TextInput::make('preco')
-                ->label('Preço')
+                ->label('Preco')
                 ->numeric()
+                ->prefix('R$')
                 ->required(),
+
+            FileUpload::make('imagem')
+                ->label('Imagem')
+                ->image()
+                ->disk('public')
+                ->directory('combos')
+                ->visibility('public')
+                ->imagePreviewHeight('150'),
 
             Toggle::make('ativo')
                 ->label('Ativo')

@@ -1,0 +1,61 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+:root {
+    --fi-color-primary-50: 249, 250, 251;
+    --fi-color-primary-100: 243, 244, 246;
+    --fi-color-primary-200: 229, 231, 235;
+    --fi-color-primary-300: 209, 213, 219;
+    --fi-color-primary-400: 156, 163, 175;
+    --fi-color-primary-500: 107, 114, 128;
+    --fi-color-primary-600: 75, 85, 99;
+    --fi-color-primary-700: 55, 65, 81;
+    --fi-color-primary-800: 31, 41, 55;
+    --fi-color-primary-900: 17, 24, 39;
+    --fi-color-primary-950: 3, 7, 18;
+}
+
+.fi-body {
+    background: #f8fafc;
+    color: #111827;
+}
+
+.fi-topbar,
+.fi-sidebar,
+.fi-ta-ctn,
+.fi-section,
+.fi-card {
+    background-color: #ffffff;
+    border-color: #e5e7eb;
+}
+
+.fi-sidebar {
+    border-right: 1px solid #e5e7eb;
+}
+
+.fi-topbar {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.fi-btn-color-primary {
+    background: #111827;
+    border-color: #111827;
+    color: #ffffff;
+}
+
+.fi-btn-color-primary:hover {
+    background: #1f2937;
+    border-color: #1f2937;
+}
+
+.fi-input,
+.fi-select-input,
+.fi-textarea {
+    border-color: #d1d5db;
+}
+
+.fi-input:focus,
+.fi-select-input:focus,
+.fi-textarea:focus {
+    border-color: #111827;
+    box-shadow: 0 0 0 1px #111827;
+}

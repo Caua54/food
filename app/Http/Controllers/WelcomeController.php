@@ -25,24 +25,30 @@ class WelcomeController extends Controller
         $categoriasArray = [['id' => 0, 'nome' => '👑 TUDO', 'cor' => 'gray'], ...$categoriasArray];
 
         $produtos = Produto::where('ativo', true)
-            ->with('categoria')
+            ->with([
+                'categoria',
+                'promocoes' => function ($query) {
+                    $query->where('ativo', true)
+                        ->where(function ($q) {
+                            $q->whereNull('data_inicio')->orWhereDate('data_inicio', '<=', now());
+                        })
+                        ->where(function ($q) {
+                            $q->whereNull('data_fim')->orWhereDate('data_fim', '>=', now());
+                        });
+                },
+            ])
             ->orderBy('categoria_id')
             ->orderBy('nome')
             ->get(['id', 'nome', 'preco', 'descricao', 'categoria_id', 'imagem', 'ativo'])
             ->map(function ($prod) {
                 $precoFinal = $prod->preco;
-                // Promoções safe (catch error se table não existir)
-                try {
-               $produtos = Produto::with(['promocoes' => function ($query) {
-    $query->where('ativo', true);
-}])->get();
-                    if ($promocoes->isNotEmpty()) {
-                        $desconto = $promocoes->min('desconto') ?? 0;
-                        $precoFinal = max(0, $prod->preco - $desconto);
-                    }
-                } catch (\Exception $e) {
-                    // Sem promocoes - preço normal
+                $promocoes = $prod->promocoes ?? collect();
+
+                if ($promocoes->isNotEmpty()) {
+                    $desconto = (float) ($promocoes->max('desconto') ?? 0);
+                    $precoFinal = max(0, (float) $prod->preco - $desconto);
                 }
+
                 return [
                     'id' => $prod->id,
                     'nome' => $prod->nome,

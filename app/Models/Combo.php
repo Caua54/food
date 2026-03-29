@@ -7,9 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Combo extends Model
 {
     protected $fillable = [
-    'nome',
-    'descricao',
-    'preco',
-    'ativo',
-];//
+        'nome',
+        'descricao',
+        'preco',
+        'imagem',
+        'ativo',
+    ];
+
+    protected $casts = [
+        'ativo' => 'boolean',
+        'preco' => 'float',
+    ];
 }

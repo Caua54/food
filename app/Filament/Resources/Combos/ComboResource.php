@@ -20,7 +20,7 @@ class ComboResource extends Resource
     protected static ?string $model = Combo::class;
 
     protected static ?string $navigationLabel = 'Combos';
-    protected static string|UnitEnum|null $navigationGroup = 'Cardápio';
+    protected static string|UnitEnum|null $navigationGroup = 'Cardapio';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
@@ -38,9 +38,7 @@ class ComboResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array

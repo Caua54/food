@@ -8,7 +8,7 @@ class Produto extends Model
 {
     protected $fillable = [
         'nome',
-        'descricao', 
+        'descricao',
         'preco',
         'categoria_id',
         'ativo',
@@ -24,9 +24,6 @@ class Produto extends Model
     // 🔥 RELAÇÃO COM PROMOÇÕES (FALTAVA ISSO)
     public function promocoes()
     {
-        if (!\Schema::hasTable('promocoes')) {
-            return collect();
-        }
         return $this->belongsToMany(\App\Models\Promocao::class, 'produto_promocao')->withTimestamps();
     }
 }

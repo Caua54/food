@@ -14,10 +14,38 @@ class ProdutoController extends Controller
     public function index()
     {
         return Produto::where('ativo', 1)
-            ->with('categoria:id,nome')
+            ->with([
+                'categoria:id,nome',
+                'promocoes' => function ($query) {
+                    $query->where('ativo', true)
+                        ->where(function ($q) {
+                            $q->whereNull('data_inicio')->orWhereDate('data_inicio', '<=', now());
+                        })
+                        ->where(function ($q) {
+                            $q->whereNull('data_fim')->orWhereDate('data_fim', '>=', now());
+                        });
+                },
+            ])
             ->orderBy('categoria_id')
             ->orderBy('nome')
-            ->get(['id', 'nome', 'preco', 'imagem', 'descricao', 'categoria_id', 'ativo']);
+            ->get(['id', 'nome', 'preco', 'imagem', 'descricao', 'categoria_id', 'ativo'])
+            ->map(function ($produto) {
+                $precoOriginal = (float) $produto->preco;
+                $desconto = (float) (($produto->promocoes ?? collect())->max('desconto') ?? 0);
+                $precoFinal = max(0, $precoOriginal - $desconto);
+
+                return [
+                    'id' => $produto->id,
+                    'nome' => $produto->nome,
+                    'preco' => $precoFinal,
+                    'precoOriginal' => $precoOriginal,
+                    'imagem' => $produto->imagem,
+                    'descricao' => $produto->descricao,
+                    'categoria_id' => $produto->categoria_id,
+                    'ativo' => (bool) $produto->ativo,
+                ];
+            })
+            ->values();
     }
 
     /**
