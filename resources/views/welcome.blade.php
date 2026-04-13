@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍔 Cardápio Food</title>
+    <title>🍔 {{ env('APP_NAME', 'Meu Cardápio') }}</title>
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
@@ -76,7 +76,7 @@
         <div class="container py-4">
             <div class="flex items-center justify-between">
                 <h1 class="text-2xl sm:text-3xl font-bold gradient-text">
-                    <i class="fas fa-utensils mr-3"></i>Food Cardápio
+                    <i class="fas fa-utensils mr-3"></i>{{ env('APP_NAME', 'Meu Cardápio') }}
                 </h1>
                 <div class="flex items-center gap-4">
                     <button onclick="focusSearch()" class="p-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" title="Buscar produtos">
@@ -116,17 +116,17 @@
 
                 <!-- Redes Sociais -->
                 <div class="flex items-center justify-center gap-3 mt-4 flex-wrap">
-                    <a href="https://instagram.com" target="_blank"
+                    <a href="{{ env('STORE_INSTAGRAM', 'https://instagram.com') }}" target="_blank"
                        class="flex items-center gap-2 px-4 py-2 rounded-2xl border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-orange-50 hover:from-pink-100 hover:to-orange-100 hover:border-pink-400 transition-all duration-200 group shadow-sm hover:shadow-md">
                         <i class="fab fa-instagram text-lg" style="color:#e1306c;"></i>
                         <span class="text-sm font-semibold text-gray-700 group-hover:text-pink-600 transition">Instagram</span>
                     </a>
-                    <a href="https://wa.me/5583998465703" target="_blank"
+                    <a href="https://wa.me/{{ env('STORE_WHATSAPP', '5500000000000') }}" target="_blank"
                        class="flex items-center gap-2 px-4 py-2 rounded-2xl border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 hover:border-green-400 transition-all duration-200 group shadow-sm hover:shadow-md">
                         <i class="fab fa-whatsapp text-lg" style="color:#25d366;"></i>
                         <span class="text-sm font-semibold text-gray-700 group-hover:text-green-600 transition">WhatsApp</span>
                     </a>
-                    <a href="mailto:seuemail@email.com"
+                    <a href="mailto:{{ env('STORE_EMAIL', 'seuemail@email.com') }}"
                        class="flex items-center gap-2 px-4 py-2 rounded-2xl border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 hover:from-orange-100 hover:to-amber-100 hover:border-orange-400 transition-all duration-200 group shadow-sm hover:shadow-md">
                         <i class="fas fa-envelope text-lg" style="color:#f97316;"></i>
                         <span class="text-sm font-semibold text-gray-700 group-hover:text-orange-600 transition">E-mail</span>
@@ -315,7 +315,7 @@
     </div>
 
     <script>
-        const WHATSAPP_PHONE = '5583998465703';
+        const WHATSAPP_PHONE = '{{ env('STORE_WHATSAPP', '5500000000000') }}';
         let cart = JSON.parse(localStorage.getItem('cart') || '[]').map(item => ({
             ...item,
             quantity: Math.max(1, Number(item.quantity) || 1),
